@@ -13,7 +13,7 @@ SECRET_KEY = 'sc61m+0b^6%2(vj@pt0c@lepv&fwcn7a353=4q%8$!!%2v)e*z'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.4.179']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -77,12 +77,8 @@ WSGI_APPLICATION = 'QuizPortalWithSections.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'quiz',
-        'USER': 'postgres',
-        'PASSWORD': 'abhi629@@',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
