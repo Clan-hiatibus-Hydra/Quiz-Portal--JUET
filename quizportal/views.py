@@ -18,7 +18,13 @@ from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 from random import *
 
+question_counter = 0
 
+
+#	ADMIN ACCESS ONLY
+
+def check_admin(user):
+	return user.is_superuser
 
 
 ## 		RANDOMIZATION - RICHESH ###
@@ -93,12 +99,13 @@ def detail(request, section_no, id_no, random_string):
 	global sec2h
 	global sec3h
 	
-
+	global question_counter
 	if flag is False:
 		randomize_it()
 	print(sec1h)
 	print(sec2h)
 	print(sec3h)
+	question_counter = question_counter +1
 	if section_no =='1':
 		if len(sec1h)>0:
 			id_no = sec1h[0]
@@ -350,10 +357,10 @@ def detail(request, section_no, id_no, random_string):
 						query.append(i)	
 						#Image.open('http://127.0.0.1:8000/media/'+str(i.image))
 						args={'question':question, 'section_no':section_no, 'timer':h+":"+m+":"+time[2].split("+")[0], 'image1':"image",
-						'total_questions':total_questions, 'total_time':total_time}
+						'total_questions':total_questions, 'total_time':total_time,'question_counter':question_counter}
 					else:
 						args={'question':question, 'section_no':section_no, 'timer':h+":"+m+":"+time[2].split("+")[0],
-						'total_questions':total_questions, 'total_time':total_time}
+						'total_questions':total_questions, 'total_time':total_time,'question_counter':question_counter}
 					break
 				return render(request, 'quizportal/questions.html', args)
 
@@ -435,14 +442,13 @@ def detail(request, section_no, id_no, random_string):
 						question=Section1.objects.filter(Q(id_no__exact=id_no))
 						args={}
 						for i in question:
-							print('line 383') #this is the problem
 							if(i.image):
 								#Image.open('http://127.0.0.1:8000/media/'+str(i.image))
 								args={'question':question, 'section_no':section_no, 'timer':h+":"+m+":"+time[2].split("+")[0], 'image1':"image",
-								'total_questions':len(Section1.objects.all()), 'total_time':total_time}
+								'total_questions':len(Section1.objects.all()), 'total_time':total_time,'question_counter':question_counter}
 							else:
 								args={'question':question, 'section_no':section_no, 'timer':h+":"+m+":"+time[2].split("+")[0],
-								'total_questions':len(Section1.objects.all()), 'total_time':total_time}
+								'total_questions':len(Section1.objects.all()), 'total_time':total_time,'question_counter':question_counter}
 							break
 						return render(request, 'quizportal/questions.html', args)
 
@@ -473,10 +479,10 @@ def detail(request, section_no, id_no, random_string):
 							if(i.image):
 								#Image.open('http://127.0.0.1:8000/media/'+str(i.image))
 								args={'question':question, 'section_no':section_no, 'timer':h+":"+m+":"+time[2].split("+")[0], 'image1':"image",
-								'total_questions':len(Section2.objects.all()), 'total_time':total_time}
+								'total_questions':len(Section2.objects.all()), 'total_time':total_time,'question_counter':question_counter}
 							else:
 								args={'question':question, 'section_no':section_no, 'timer':h+":"+m+":"+time[2].split("+")[0],
-								'total_questions':len(Section2.objects.all()), 'total_time':total_time}
+								'total_questions':len(Section2.objects.all()), 'total_time':total_time,'question_counter':question_counter}
 							break
 						return render(request, 'quizportal/questions.html', args)
 
@@ -503,10 +509,10 @@ def detail(request, section_no, id_no, random_string):
 							if(i.image):
 								#Image.open('http://127.0.0.1:8000/media/'+str(i.image))
 								args={'question':question, 'section_no':section_no, 'timer':h+":"+m+":"+time[2].split("+")[0], 'image1':"image",
-								'total_questions':len(Section3.objects.all()), 'total_time':total_time}
+								'total_questions':len(Section3.objects.all()), 'total_time':total_time,'question_counter':question_counter}
 							else:
 								args={'question':question, 'section_no':section_no, 'timer':h+":"+m+":"+time[2].split("+")[0],
-								'total_questions':len(Section3.objects.all()), 'total_time':total_time}
+								'total_questions':len(Section3.objects.all()), 'total_time':total_time,'question_counter':question_counter}
 							break
 						return render(request, 'quizportal/questions.html', args)
 			elif(section_no>'3'):
@@ -545,11 +551,13 @@ def markSection1End(request):
 
 
 #test module, delete before production
+
+@user_passes_test(check_admin)	# now only admin access is to kill all the attempted questions
 def kill(request):
 	SolvedQ1.objects.all().delete()
 	SolvedQ2.objects.all().delete()
 	SolvedQ3.objects.all().delete()
-	return HttpResponse('<html><body><h1>Killed</h1></body></html>')
+	return HttpResponse('<html><body><h1>Killed</h1><h2>Deleted all instances of all the attempted questions</h2></body></html>')
 
 #Actual function for ending Section 2
 def markSection2End(request):
@@ -635,10 +643,6 @@ def endSection(request, section_no):
 
 
 
-#ADMIN ACCESS ONLY
-
-def check_admin(user):
-	return user.is_superuser
 
 
 #Admin Main
